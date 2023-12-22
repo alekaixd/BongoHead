@@ -7,7 +7,7 @@ public class Movement : MonoBehaviour
     public float speed = 7.0f;
     public float sprintMultiplier;
     private float initialSpeed;
-    public PlayerInput playerInput;
+    private PlayerInput playerInput;
     private Vector2 movementInput;
     private Vector2 smoothedMovementInput;
     private Vector2 movementInputSmoothVelocity;
@@ -17,6 +17,7 @@ public class Movement : MonoBehaviour
 
     void Start()
     {
+        playerInput = GetComponent<PlayerInput>();
         rigidbody = GetComponent<Rigidbody2D>();
         initialSpeed = speed;
     }
