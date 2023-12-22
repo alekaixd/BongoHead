@@ -123,6 +123,11 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &314388380 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5908287308751307227, guid: bef6f051b528148468a15a5e9d0fae5b, type: 3}
+  m_PrefabInstance: {fileID: 1158258212}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -135,6 +140,7 @@ GameObject:
   - component: {fileID: 519420031}
   - component: {fileID: 519420029}
   - component: {fileID: 519420030}
+  - component: {fileID: 519420033}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -260,6 +266,25 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &519420033
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 519420028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a0e54a738a16d64e97086bacec77f3e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerPos: {fileID: 608460356}
+  smoothSpeed: 0.1
+--- !u!4 &608460356 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2807084341385430456, guid: 830131b741b0fbf49bbe74b503df5280, type: 3}
+  m_PrefabInstance: {fileID: 815444178}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &815444178
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -271,6 +296,22 @@ PrefabInstance:
     - target: {fileID: 1185339478966028063, guid: 830131b741b0fbf49bbe74b503df5280, type: 3}
       propertyPath: m_Interpolate
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2666834333736054993, guid: 830131b741b0fbf49bbe74b503df5280, type: 3}
+      propertyPath: FillArea
+      value: 
+      objectReference: {fileID: 314388380}
+    - target: {fileID: 2666834333736054993, guid: 830131b741b0fbf49bbe74b503df5280, type: 3}
+      propertyPath: staminaSlider
+      value: 
+      objectReference: {fileID: 2126436072}
+    - target: {fileID: 2666834333736054993, guid: 830131b741b0fbf49bbe74b503df5280, type: 3}
+      propertyPath: staminaRegenValue
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 2666834333736054993, guid: 830131b741b0fbf49bbe74b503df5280, type: 3}
+      propertyPath: staminaDecreaseValue
+      value: -40
       objectReference: {fileID: 0}
     - target: {fileID: 2807084341385430456, guid: 830131b741b0fbf49bbe74b503df5280, type: 3}
       propertyPath: m_LocalPosition.x
@@ -426,6 +467,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bef6f051b528148468a15a5e9d0fae5b, type: 3}
+--- !u!114 &2126436072 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8022058459349566024, guid: bef6f051b528148468a15a5e9d0fae5b, type: 3}
+  m_PrefabInstance: {fileID: 1158258212}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
