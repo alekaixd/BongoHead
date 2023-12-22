@@ -293,10 +293,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1185339478966028063, guid: 830131b741b0fbf49bbe74b503df5280, type: 3}
-      propertyPath: m_Interpolate
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 2666834333736054993, guid: 830131b741b0fbf49bbe74b503df5280, type: 3}
       propertyPath: FillArea
       value: 
@@ -305,14 +301,6 @@ PrefabInstance:
       propertyPath: staminaSlider
       value: 
       objectReference: {fileID: 2126436072}
-    - target: {fileID: 2666834333736054993, guid: 830131b741b0fbf49bbe74b503df5280, type: 3}
-      propertyPath: staminaRegenValue
-      value: 30
-      objectReference: {fileID: 0}
-    - target: {fileID: 2666834333736054993, guid: 830131b741b0fbf49bbe74b503df5280, type: 3}
-      propertyPath: staminaDecreaseValue
-      value: -40
-      objectReference: {fileID: 0}
     - target: {fileID: 2807084341385430456, guid: 830131b741b0fbf49bbe74b503df5280, type: 3}
       propertyPath: m_LocalPosition.x
       value: 1.5

@@ -83,7 +83,7 @@ public class Movement : MonoBehaviour
             }
         }
 
-        // Stamina
+        /* Stamina
         if (staminaSlider.value == 0f)
         {
             FillArea.SetActive(false);
@@ -93,6 +93,7 @@ public class Movement : MonoBehaviour
         {
             FillArea.SetActive(true);
         }
+        */
 
         if (stamina <= 0 && k)
         {
