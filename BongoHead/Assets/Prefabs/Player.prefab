@@ -130,10 +130,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef9230630deb8ab47abc3bc4a1c77a72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 7
-  sprintMultiplier: 1.5
+  stamina: 0
+  maxStamina: 100
+  isSprinting: 0
+  canRegenStamina: 1
+  staminaRegenValue: 0.05
+  staminaDecreaseValue: -0.25
   rigidbody: {fileID: 1185339478966028063}
   animator: {fileID: 0}
+  staminaSlider: {fileID: 0}
+  FillArea: {fileID: 0}
+  speed: 7
+  sprintMultiplier: 1.5
 --- !u!50 &1185339478966028063
 Rigidbody2D:
   serializedVersion: 4
@@ -157,10 +165,10 @@ Rigidbody2D:
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_Interpolate: 0
-  m_SleepingMode: 1
-  m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Interpolate: 2
+  m_SleepingMode: 0
+  m_CollisionDetection: 1
+  m_Constraints: 4
 --- !u!70 &6945197592577395916
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
