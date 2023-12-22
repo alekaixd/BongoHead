@@ -134,8 +134,8 @@ MonoBehaviour:
   maxStamina: 100
   isSprinting: 0
   canRegenStamina: 1
-  staminaRegenValue: 0.05
-  staminaDecreaseValue: -0.25
+  staminaRegenValue: 30
+  staminaDecreaseValue: -40
   rigidbody: {fileID: 1185339478966028063}
   animator: {fileID: 0}
   staminaSlider: {fileID: 0}
@@ -165,7 +165,7 @@ Rigidbody2D:
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_Interpolate: 2
+  m_Interpolate: 0
   m_SleepingMode: 0
   m_CollisionDetection: 1
   m_Constraints: 4

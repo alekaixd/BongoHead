@@ -96,7 +96,7 @@ public class Movement : MonoBehaviour
 
         if (stamina <= 0 && k)
         {
-            StartCoroutine(SprintCooldown(4 - staminaRegenValue * 10));
+            StartCoroutine(SprintCooldown(3f - staminaRegenValue / 100));
         }
 
         if (!isSprinting && canRegenStamina)
@@ -123,7 +123,7 @@ public class Movement : MonoBehaviour
 
     private void ChangeStamina(float i)
     {
-        stamina += i;
+        stamina += i * Time.deltaTime;
         stamina = Mathf.Clamp(stamina, 0, maxStamina);
         staminaSlider.value = stamina;
     }
