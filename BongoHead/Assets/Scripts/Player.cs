@@ -2,11 +2,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
-public class Movement : MonoBehaviour
+public class Player : MonoBehaviour
 {
     private float initialSpeed;
     private PlayerInput playerInput;
@@ -21,6 +22,9 @@ public class Movement : MonoBehaviour
     [SerializeField] private float rollCooldown;
     [SerializeField] private float rollDuration;
     [SerializeField] private float rollStaminaCost;
+    [SerializeField] private float immuneTime;
+    public float damage;
+
     private bool isSprinting;
     private bool canRegenStamina;
     private bool k = true;
@@ -31,10 +35,16 @@ public class Movement : MonoBehaviour
     private bool canSprint;
     private bool canRoll;
     private bool isRolling;
+    private bool canTakeDmg;
+    public float normalAttackStaminaCost;
+    private bool canNormalAttack;
+    public bool canDealDmg;
+    public float normalAttackSpeed;
+    public float normalAttackDmg;
     
-
-    private Rigidbody2D rb;
-    private Animator playerAnimator;
+    
+    public Rigidbody2D rb;
+    public Animator playerAnimator;
     public Slider staminaSlider;
     public Slider hpSlider;
     public float speed = 7.0f;
@@ -44,9 +54,8 @@ public class Movement : MonoBehaviour
     void Start()
     {
         playerInput = GetComponent<PlayerInput>();
-        this.rb = this.GetComponent<Rigidbody2D>();
         tr = GetComponent<TrailRenderer>();
-        playerAnimator = GetComponent<Animator>();
+        //playerAnimator = GetComponent<Animator>();
         initialSpeed = speed;
         stamina = maxStamina;
         staminaSlider.maxValue = maxStamina;
@@ -58,6 +67,9 @@ public class Movement : MonoBehaviour
         canRegenStamina = true;
         canSprint = true;
         canRoll = true;
+        canTakeDmg = true;
+        canNormalAttack = true;
+        canDealDmg = false;
     }
 
     private void Update()
@@ -83,7 +95,7 @@ public class Movement : MonoBehaviour
         }
 
         // Rolling
-        if (playerInput.actions["Roll"].IsPressed() && canRoll)
+        if (playerInput.actions["Roll"].IsPressed() && canRoll && stamina >= rollStaminaCost)
         {
             stamina -= rollStaminaCost;
             staminaSlider.value = stamina;
@@ -92,6 +104,18 @@ public class Movement : MonoBehaviour
             StartCoroutine(Roll(rollCooldown));
             StartCoroutine(SprintCooldown(rollDuration + 0.33f));
         }
+
+        if (playerInput.actions["Fire"].IsPressed() && canNormalAttack && stamina >= normalAttackStaminaCost)
+        {
+            damage = normalAttackDmg;
+            stamina -= normalAttackStaminaCost;
+            staminaSlider.value = stamina;
+            h = true;
+            f = 0f;
+            StartCoroutine(RollCooldown(0.12f));
+            StartCoroutine(NormalAttack(normalAttackSpeed));
+            StartCoroutine(SprintCooldown(0.2f));
+        } 
 
         // Starts stamina regen cooldown
         if (h)
@@ -165,6 +189,7 @@ public class Movement : MonoBehaviour
 
     private IEnumerator Roll(float cooldownTime)
     {
+        StartCoroutine(ImmunityFrames(rollDuration + 0.20f));
         tr.emitting = true;
         canRoll = false;
         isRolling = true;
@@ -175,10 +200,36 @@ public class Movement : MonoBehaviour
         canRoll = true;
     }
 
+    private IEnumerator RollCooldown(float cooldownTime)
+    {
+        canRoll = false;
+        yield return new WaitForSeconds(cooldownTime);
+        canRoll = true;
+    }
+
+    private IEnumerator NormalAttack(float attackSpeed)
+    {
+        canNormalAttack = false;
+        playerAnimator.SetTrigger("Normal Attack");
+        yield return new WaitForSeconds(attackSpeed);
+        canNormalAttack = true;
+    }
+
     public void TakeDamage(float dmgTaken)
     {
-        hp -= dmgTaken;
-        hpSlider.value = hp;
+        if (canTakeDmg)
+        {
+            hp -= dmgTaken;
+            hpSlider.value = hp;
+            StartCoroutine(ImmunityFrames(immuneTime));
+        }
+    }
+
+    private IEnumerator ImmunityFrames(float timeImmune)
+    {
+        canTakeDmg = false;
+        yield return new WaitForSeconds(timeImmune);
+        canTakeDmg = true;
     }
 
     private void StaminaRegenCooldown(float time)
@@ -196,6 +247,16 @@ public class Movement : MonoBehaviour
             f = 0f;
             h = false;
         }
+    }
+
+    public void CantDealDmg()
+    {
+        canDealDmg = false;
+    }
+
+    public void CanDealDmg()
+    {
+        canDealDmg = true;
     }
 }
 
