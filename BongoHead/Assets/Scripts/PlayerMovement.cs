@@ -1,19 +1,27 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
-public class Player : MonoBehaviour
+public class PlayerMovement : MonoBehaviour
 {
+    public float horizontal;
     private float initialSpeed;
-    private PlayerInput playerInput;
-    private Vector2 movementInput;
-    private Vector2 smoothedMovementInput;
-    private Vector2 movementInputSmoothVelocity;
+    private float speed = 5f;
+    public float jumpingPower = 10f;
+    private bool isFacingRight = true;
+    public Rigidbody2D rb2d;
+    public Transform groundCheck;
+    public LayerMask groundlayer;
+    public AnimationCurve movementCurve;
+    public AnimationCurve decelerationCurve;
+    public float decelerationTime;
+    public float accelerationTime;
+    private float coyoteTime = 0.1f;
+    private float coyoteTimeCounter;
+    private float jumpBufferTime = 0.075f;
+    private float jumpBufferCounter;
+
     [SerializeField] private float maxHp;
     [SerializeField] private float hp;
     [SerializeField] private float stamina;
@@ -23,6 +31,7 @@ public class Player : MonoBehaviour
     [SerializeField] private float rollDuration;
     [SerializeField] private float rollStaminaCost;
     [SerializeField] private float immuneTime;
+    [SerializeField] private CameraMovement cameraMovement;
     public float damage;
 
     private bool isSprinting;
@@ -34,27 +43,25 @@ public class Player : MonoBehaviour
     public float staminaDecreaseValue;
     private bool canSprint;
     private bool canRoll;
-    private bool isRolling;
+    public bool isRolling;
     private bool canTakeDmg;
     public float normalAttackStaminaCost;
     private bool canNormalAttack;
     public bool canDealDmg;
     public float normalAttackSpeed;
     public float normalAttackDmg;
-    
-    
-    public Rigidbody2D rb;
+
+    // Look Direction Offset multiplier lol okay
+    public float ldom;
+
     public Animator playerAnimator;
     public Slider staminaSlider;
     public Slider hpSlider;
     public float sprintMultiplier;
     private TrailRenderer tr;
-    public float speed = 7.0f;
-    
 
-    void Start()
+    private void Awake()
     {
-        playerInput = GetComponent<PlayerInput>();
         tr = GetComponent<TrailRenderer>();
         //playerAnimator = GetComponent<Animator>();
         initialSpeed = speed;
@@ -73,30 +80,76 @@ public class Player : MonoBehaviour
         canDealDmg = false;
     }
 
-    private void Update()
+    void Update()
     {
-        // Sprinting
-        if (playerInput.actions["Sprint"].IsPressed() && stamina > 0f && canSprint)
+        if (IsGrounded())
         {
-            speed = initialSpeed * sprintMultiplier;
+            coyoteTimeCounter = coyoteTime;
+        }
+        else
+        {
+            coyoteTimeCounter -= Time.deltaTime;
+        }
+
+        if (Input.GetButtonDown("Jump"))
+        {
+            jumpBufferCounter = jumpBufferTime;
+        }
+        else
+        {
+            jumpBufferCounter -= Time.deltaTime;
+        }
+
+        if (jumpBufferCounter > 0f && coyoteTimeCounter > 0f)
+        {
+            rb2d.velocity = new Vector2(rb2d.velocity.x, jumpingPower);
+            jumpBufferCounter = 0f;
+        }
+
+        if (Input.GetButtonUp("Jump") && rb2d.velocity.y > 0f)
+        {
+            rb2d.velocity = new Vector2(rb2d.velocity.x, rb2d.velocity.y * 0.5f);
+            coyoteTimeCounter = 0f;
+        }
+
+        if (Input.GetButton("Horizontal"))
+        {
+            horizontal = Input.GetAxisRaw("Horizontal");
+            decelerationTime = 0;
+            speed = movementCurve.Evaluate(accelerationTime);
+            accelerationTime += Time.deltaTime;
+            cameraMovement.offset.x = horizontal * ldom;
+        }
+
+        if (Input.GetButton("Horizontal") == false)
+        {
+            accelerationTime = 0;
+            speed = decelerationCurve.Evaluate(decelerationTime);
+            decelerationTime += Time.deltaTime;
+        }
+
+        Flip();
+
+        // Sprinting
+        if (Input.GetKey(KeyCode.LeftShift) && stamina > 0f && canSprint)
+        {
             isSprinting = true;
             h = true;
             f = 0f;
         }
 
-        else if (playerInput.actions["Sprint"].WasReleasedThisFrame() && stamina > 0f && canSprint)
+        else if (Input.GetKeyUp(KeyCode.LeftShift) && stamina > 0f && canSprint)
         {
             StartCoroutine(SprintCooldown(0.33f));
         }
 
         else
         {
-            speed = initialSpeed;
             isSprinting = false;
         }
 
         // Rolling
-        if (playerInput.actions["Roll"].IsPressed() && canRoll && stamina >= rollStaminaCost)
+        if (Input.GetKeyDown(KeyCode.C) && canRoll && stamina >= rollStaminaCost)
         {
             stamina -= rollStaminaCost;
             staminaSlider.value = stamina;
@@ -106,7 +159,7 @@ public class Player : MonoBehaviour
             StartCoroutine(SprintCooldown(rollDuration + 0.33f));
         }
 
-        if (playerInput.actions["Fire"].IsPressed() && canNormalAttack && stamina >= normalAttackStaminaCost)
+        if (Input.GetMouseButtonDown(0) && canNormalAttack && stamina >= normalAttackStaminaCost)
         {
             damage = normalAttackDmg;
             stamina -= normalAttackStaminaCost;
@@ -116,7 +169,7 @@ public class Player : MonoBehaviour
             StartCoroutine(RollCooldown(0.12f));
             StartCoroutine(NormalAttack(normalAttackSpeed));
             StartCoroutine(SprintCooldown(0.2f));
-        } 
+        }
 
         // Starts stamina regen cooldown
         if (h)
@@ -124,7 +177,7 @@ public class Player : MonoBehaviour
             StaminaRegenCooldown(1.5f);
         }
 
-        if(Input.GetKey("k"))
+        if (Input.GetKey("k"))
         {
             TakeDamage(10f);
         }
@@ -157,20 +210,34 @@ public class Player : MonoBehaviour
     {
         if (isRolling)
         {
-            smoothedMovementInput = Vector2.SmoothDamp(smoothedMovementInput, movementInput, ref movementInputSmoothVelocity, 0.25f);
-            rb.velocity = smoothedMovementInput * rollVelocity;
+            rb2d.velocity = new Vector2((horizontal * speed) * rollVelocity, rb2d.velocity.y);
+        }
+
+        else if (isSprinting)
+        {
+            rb2d.velocity = new Vector2((horizontal * speed) * sprintMultiplier, rb2d.velocity.y);
         }
 
         else
         {
-            smoothedMovementInput = Vector2.SmoothDamp(smoothedMovementInput, movementInput, ref movementInputSmoothVelocity, 0.1f);
-            rb.velocity = smoothedMovementInput * speed;
+            rb2d.velocity = new Vector2(horizontal * speed, rb2d.velocity.y);
         }
     }
 
-    private void OnMove(InputValue inputValue)
+    private bool IsGrounded()
     {
-        movementInput = inputValue.Get<Vector2>();
+        return Physics2D.OverlapCircle(groundCheck.position, 0.2f, LayerMask.GetMask("Ground"));
+    }
+
+    private void Flip()
+    {
+        if (isFacingRight && horizontal < 0f || !isFacingRight && horizontal > 0f)
+        {
+            isFacingRight = !isFacingRight;
+            Vector3 localScale = transform.localScale;
+            localScale.x *= -1f;
+            transform.localScale = localScale;
+        }
     }
 
     private void ChangeStamina(float i)
@@ -260,4 +327,3 @@ public class Player : MonoBehaviour
         canDealDmg = true;
     }
 }
-
